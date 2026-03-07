@@ -1,22 +1,31 @@
-# Gestiune Targ Auto - Documentatie Proiect
+# Proiect: Modelare Entitati - Sistem Gestiune Targ Auto
 
-Aplicatia este destinata gestionarii tranzactiilor dintr-un targ auto, oferind functionalitati de adaugare, validare si analiza a datelor.
+Acest proiect reprezinta etapa de analiza si definire a entitatilor necesare pentru gestionarea tranzactiilor intr-un targ auto. Scopul principal este modelarea corecta a datelor prin clase C# dedicate, asigurand o structura solida pentru etapele ulterioare de procesare.
 
-## 1. Arhitectura Aplicatiei
-Proiectul respecta principiile **OOP** si este structurat pe straturi pentru o mentenanta usoara:
+## 1. Entitati Identificate
+Am identificat trei entitati fundamentale care modeleaza domeniul problemei:
 
-### Modele (Folder: Models)
-* **Auto.cs**: Retine detaliile tehnice ale vehiculului (Firma, Model, An).
-* **Persoana.cs**: Modeleaza entitatea umana (Vanzator/Cumparator).
-* **Tranzactie.cs**: Entitatea centrala care leaga masina de participanti, pret si data.
+### A. Auto (Entitatea Vehicul)
+Modeleaza bunul supus tranzactiei.
+* **Proprietati:** Firma, Model, AnFabricatie, SerieSasiu.
+* **Rol:** Identificarea tehnica a masinii.
 
-### Logica de Business (Folder: Services)
-* **GestiuneService.cs**: Contine colectia de date si implementeaza algoritmii pentru alerte si rapoarte.
+### B. Persoana (Entitatea Participant)
+Modeleaza actorii implicati in tranzactie (vanzator/cumparator).
+* **Proprietati:** Nume, Prenume.
+* **Functionalitate:** Proprietate calculata pentru nume complet.
+* **Rol:** Identificarea partilor contractante.
 
-## 2. Functionalitati Cheie
-1. **Validare automata**: Sistemul verifica in timp real daca o persoana este implicata in mai multe vanzari in aceeasi zi.
-2. **Analiza date**: Identificarea celei mai cautate marci auto prin operatii de grupare (LINQ).
-3. **Istoric Pret**: Urmarirea evolutiei valorii unui model pe axa timpului.
+### C. Tranzactie (Entitatea Actului de Vanzare)
+Entitatea centrala care realizeaza compunerea celorlalte entitati.
+* **Proprietati:** Id (Guid), Vehicul, Vanzator, Cumparator, Pret, Data.
+* **Rol:** Inregistrarea actului juridic de vanzare-cumparare.
 
-## 3. Logica de Implementare
-Aplicatia utilizeaza **LINQ** pentru procesarea eficienta a listelor si **Guid** pentru identificarea unica a tranzactiilor, permitand editarea si stergerea precisa a acestora.
+## 2. Diagrama de Relatii
+Proiectul utilizeaza compunerea pentru a lega entitatile: o Tranzactie "contine" un obiect de tip Auto si doua obiecte de tip Persoana.
+
+
+
+## 3. Considerente Tehnice
+* **Tipuri de date:** S-a utilizat `decimal` pentru valori financiare (Pret) si `Guid` pentru identificatori unici (Id), asigurand precizie si scalabilitate.
+* **Separarea Responsabilitatilor:** Entitatile sunt POCO (Plain Old CLR Objects), continand doar date, respectand principiul separarii datelor de logica de business.
