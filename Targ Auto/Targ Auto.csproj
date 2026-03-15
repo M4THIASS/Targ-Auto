@@ -8,4 +8,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestiuneTargAuto.Models\GestiuneTargAuto.Models.csproj" />
+  </ItemGroup>
+
 </Project>

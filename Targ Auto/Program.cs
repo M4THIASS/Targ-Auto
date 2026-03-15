@@ -8,7 +8,9 @@ namespace GestiuneTargAuto
     {
         static void Main(string[] args)
         {
-            // 1. Instantiem partile componente (Date brute)
+            // Instantiem serviciul — el detine vectorul si toata logica
+            GestiuneService service = new GestiuneService();
+
             Auto masina = new Auto
             {
                 Firma = "BMW",
@@ -20,7 +22,6 @@ namespace GestiuneTargAuto
             Persoana vanzator = new Persoana { Nume = "Ionescu", Prenume = "Marius", Telefon = "0711222333" };
             Persoana cumparator = new Persoana { Nume = "Popa", Prenume = "Elena", Telefon = "0744555666" };
 
-            // 2. Cream tranzactia care leaga toate obiectele de mai sus
             Tranzactie tranzactie = new Tranzactie
             {
                 Vehicul = masina,
@@ -30,31 +31,43 @@ namespace GestiuneTargAuto
                 DataTranzactie = DateTime.Now
             };
 
-            // 3. AFISARE DATE (Verificam accesul la proprietati)
-            Console.WriteLine("=== VERIFICARE DATE CLASE ===");
+            service.AdaugaTranzactieDirecta(tranzactie);
 
-            Console.WriteLine("\n[DATE MASINA]:");
-            Console.WriteLine("Marca: " + masina.Firma);
-            Console.WriteLine("Model: " + masina.Model);
-            Console.WriteLine("Serie Sasiu: " + masina.SerieSasiu);
+            // ── MENIU
+            bool rulare = true;
+            while (rulare)
+            {
+                Console.Clear();
+                Console.WriteLine("╔══════════════════════════════════════╗");
+                Console.WriteLine("║       SISTEM GESTIUNE TARG AUTO      ║");
+                Console.WriteLine("╠══════════════════════════════════════╣");
+                Console.WriteLine("║  1. Adauga tranzactie noua           ║");
+                Console.WriteLine("║  2. Afiseaza toate tranzactiile      ║");
+                Console.WriteLine("║  3. Cauta dupa firma vehicul         ║");
+                Console.WriteLine("║  4. Cauta dupa numele vanzatorului   ║");
+                Console.WriteLine("║  5. Cauta dupa intervalul de pret    ║");
+                Console.WriteLine("║  0. Iesire                           ║");
+                Console.WriteLine("╚══════════════════════════════════════╝");
+                Console.Write("\nAlegeti optiunea: ");
 
-            Console.WriteLine("\n[DATE PERSOANE]:");
-            Console.WriteLine("Vanzator: " + vanzator.NumeComplet);
-            Console.WriteLine("Cumparator: " + cumparator.NumeComplet);
+                string optiune = Console.ReadLine();
 
-            Console.WriteLine("\n[DETALII TRANZACTIE]:");
-            // Afisam ID-ul unic generat automat (Guid)
-            Console.WriteLine("ID Tranzactie: " + tranzactie.Id);
-            Console.WriteLine("Pret Final: " + tranzactie.PretTranzactie + " EUR");
-            Console.WriteLine("Data: " + tranzactie.DataTranzactie.ToShortDateString());
+                switch (optiune)
+                {
+                    case "1": service.AdaugaTranzactie(); break;
+                    case "2": service.AfiseazaToate(); break;
+                    case "3": service.CautaDupaFirma(); break;
+                    case "4": service.CautaDupaVanzator(); break;
+                    case "5": service.CautaDupaPret(); break;
+                    case "0": rulare = false; break;
+                    default:
+                        Console.WriteLine("\nOptiune invalida! Apasati orice tasta...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
 
-            // 4. Afisare folosind metoda ToString() daca este implementata
-            Console.WriteLine("\n[REPREZENTARE TEXTUALA (ToString)]:");
-            Console.WriteLine(tranzactie.ToString());
-
-            Console.WriteLine("\n==============================");
-            Console.WriteLine("Apasati orice tasta pentru a inchide...");
-            Console.ReadKey();
+            Console.WriteLine("\nLa revedere!");
         }
     }
 }

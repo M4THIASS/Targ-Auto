@@ -2,5 +2,6 @@
   <Folder Name="/Solution Items/">
     <File Path="README.md" />
   </Folder>
+  <Project Path="GestiuneTargAuto.Models/GestiuneTargAuto.Models.csproj" Id="b1797696-11ae-4dee-be5a-c29908e1a622" />
   <Project Path="Targ Auto/Targ Auto.csproj" />
 </Solution>
