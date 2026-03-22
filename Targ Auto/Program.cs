@@ -4,6 +4,9 @@ using GestiuneTargAuto.Services;
 
 namespace GestiuneTargAuto
 {
+    // ================================================================
+    // UI — singura parte care foloseste Console
+    // ================================================================
     class Program
     {
         static GestiuneService _service = new GestiuneService();
@@ -16,13 +19,12 @@ namespace GestiuneTargAuto
                 Firma = "BMW",
                 Model = "Seria 3",
                 AnFabricatie = 2018,
-                SerieSasiu = "VIN123456789"
+                SerieSasiu = "VIN123456789",
+                Culoare = Culoare.Negru,
+                Optiuni = Optiuni.AerConditionat | Optiuni.Navigatie | Optiuni.CutieAutomata
             };
 
-            // Adaugam masina si in lista disponibile
             _service.AdaugaMasinaDisponibila(masinaTest);
-
-            // Adaugam si o tranzactie deja finalizata (aceasta o scoate automat din disponibile)
             _service.AdaugaTranzactieDirecta(new Tranzactie
             {
                 Vehicul = masinaTest,
@@ -32,13 +34,14 @@ namespace GestiuneTargAuto
                 DataTranzactie = DateTime.Now
             });
 
-            // Masina disponibila (inca nevanduta)
             _service.AdaugaMasinaDisponibila(new Auto
             {
                 Firma = "Dacia",
                 Model = "Logan",
                 AnFabricatie = 2021,
-                SerieSasiu = "VIN987654321"
+                SerieSasiu = "VIN987654321",
+                Culoare = Culoare.Alb,
+                Optiuni = Optiuni.AerConditionat
             });
 
             // ── Meniu principal ──────────────────────────────────────
@@ -80,6 +83,59 @@ namespace GestiuneTargAuto
             Console.WriteLine("\nLa revedere!");
         }
 
+
+        static Culoare CitesteCuloare()
+        {
+            Console.WriteLine("Culori disponibile:");
+            foreach (Culoare c in Enum.GetValues(typeof(Culoare)))
+                Console.WriteLine($"  {(int)c}. {c}");
+
+            Console.Write("Alegeti culoarea (numar): ");
+            int alegere;
+            while (!int.TryParse(Console.ReadLine(), out alegere) || !Enum.IsDefined(typeof(Culoare), alegere))
+                Console.Write("Alegere invalida. Introduceti numarul corespunzator: ");
+
+            return (Culoare)alegere;
+        }
+
+        static Optiuni CitesteOptiuni()
+        {
+            Console.WriteLine("Optiuni disponibile (puteti alege mai multe, separate prin virgula):");
+            Console.WriteLine("  1. Aer Conditionat");
+            Console.WriteLine("  2. Navigatie");
+            Console.WriteLine("  4. Cutie Automata");
+            Console.WriteLine("  8. Scaune Piele");
+            Console.WriteLine("  16. Xenon");
+            Console.WriteLine("  32. Panoramic");
+            Console.WriteLine("  0. Niciuna");
+            Console.Write("Introduceti suma valorilor dorite (ex: 1+2=3 pentru AC+Navigatie): ");
+
+            int valoare;
+            while (!int.TryParse(Console.ReadLine(), out valoare) || valoare < 0)
+                Console.Write("Valoare invalida: ");
+
+            return (Optiuni)valoare;
+        }
+
+        static Auto CitesteMasina()
+        {
+            Auto masina = new Auto();
+            Console.Write("Firma: "); masina.Firma = Console.ReadLine();
+            Console.Write("Model: "); masina.Model = Console.ReadLine();
+            Console.Write("Serie sasiu (VIN): "); masina.SerieSasiu = Console.ReadLine();
+
+            int an;
+            Console.Write("An fabricatie: ");
+            while (!int.TryParse(Console.ReadLine(), out an) || an < 1900 || an > DateTime.Now.Year)
+                Console.Write($"An invalid! Introduceti intre 1900 si {DateTime.Now.Year}: ");
+            masina.AnFabricatie = an;
+
+            masina.Culoare = CitesteCuloare();
+            masina.Optiuni = CitesteOptiuni();
+
+            return masina;
+        }
+
         // ════════════════════════════════════════════════════════════
         // TRANZACTII
         // ════════════════════════════════════════════════════════════
@@ -96,34 +152,20 @@ namespace GestiuneTargAuto
                 return;
             }
 
-            // Date vehicul
             Console.WriteLine("[DATE VEHICUL]");
-            Auto masina = new Auto();
-            Console.Write("Firma: "); masina.Firma = Console.ReadLine();
-            Console.Write("Model: "); masina.Model = Console.ReadLine();
-            Console.Write("Serie sasiu (VIN): "); masina.SerieSasiu = Console.ReadLine();
+            Auto masina = CitesteMasina();
 
-            int an;
-            Console.Write("An fabricatie: ");
-            while (!int.TryParse(Console.ReadLine(), out an) || an < 1900 || an > DateTime.Now.Year)
-                Console.Write($"An invalid! Introduceti intre 1900 si {DateTime.Now.Year}: ");
-            masina.AnFabricatie = an;
-
-            // Date vanzator
             Console.WriteLine("\n[DATE VANZATOR]");
             Persoana vanzator = CitestePersoana();
 
-            // Date cumparator
             Console.WriteLine("\n[DATE CUMPARATOR]");
             Persoana cumparator = CitestePersoana();
 
-            // Pret
             decimal pret;
             Console.Write("\nPret tranzactie (EUR): ");
             while (!decimal.TryParse(Console.ReadLine(), out pret) || pret <= 0)
                 Console.Write("Pret invalid! Introduceti un numar pozitiv: ");
 
-            // Trimite catre service (scoate automat masina din disponibile daca era acolo)
             Tranzactie t = new Tranzactie
             {
                 Vehicul = masina,
@@ -234,6 +276,8 @@ namespace GestiuneTargAuto
                     Console.WriteLine($"│ Model:       {masini[i].Model}");
                     Console.WriteLine($"│ An:          {masini[i].AnFabricatie}");
                     Console.WriteLine($"│ Serie VIN:   {masini[i].SerieSasiu}");
+                    Console.WriteLine($"│ Culoare:     {masini[i].Culoare}");
+                    Console.WriteLine($"│ Optiuni:     {masini[i].Optiuni}");
                     Console.WriteLine($"└────────────────────────────────────────────────");
                 }
 
@@ -249,16 +293,7 @@ namespace GestiuneTargAuto
             Console.Clear();
             Console.WriteLine("=== ADAUGARE MASINA LA VANZARE ===\n");
 
-            Auto masina = new Auto();
-            Console.Write("Firma: "); masina.Firma = Console.ReadLine();
-            Console.Write("Model: "); masina.Model = Console.ReadLine();
-            Console.Write("Serie sasiu (VIN): "); masina.SerieSasiu = Console.ReadLine();
-
-            int an;
-            Console.Write("An fabricatie: ");
-            while (!int.TryParse(Console.ReadLine(), out an) || an < 1900 || an > DateTime.Now.Year)
-                Console.Write($"An invalid! Introduceti intre 1900 si {DateTime.Now.Year}: ");
-            masina.AnFabricatie = an;
+            Auto masina = CitesteMasina();
 
             bool adaugat = _service.AdaugaMasinaDisponibila(masina);
             Console.WriteLine(adaugat
@@ -292,10 +327,12 @@ namespace GestiuneTargAuto
         static void AfiseazaTranzactie(int nr, Tranzactie t)
         {
             Console.WriteLine($"┌─── Tranzactia #{nr} ───────────────────────────");
-            Console.WriteLine($"| ID:          {t.Id}");
+            Console.WriteLine($"│ ID:          {t.Id}");
             Console.WriteLine($"│ Data:        {t.DataTranzactie.ToShortDateString()}");
             Console.WriteLine($"│ Vehicul:     {t.Vehicul.Firma} {t.Vehicul.Model} ({t.Vehicul.AnFabricatie})");
             Console.WriteLine($"│ Serie VIN:   {t.Vehicul.SerieSasiu}");
+            Console.WriteLine($"│ Culoare:     {t.Vehicul.Culoare}");
+            Console.WriteLine($"│ Optiuni:     {t.Vehicul.Optiuni}");
             Console.WriteLine($"│ Vanzator:    {t.Vanzator.NumeComplet} | Tel: {t.Vanzator.Telefon}");
             Console.WriteLine($"│ Cumparator:  {t.Cumparator.NumeComplet} | Tel: {t.Cumparator.Telefon}");
             Console.WriteLine($"│ Pret:        {t.PretTranzactie:N0} EUR");

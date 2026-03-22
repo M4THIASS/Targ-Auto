@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using GestiuneTargAuto.Models;
 
 namespace GestiuneTargAuto.Services
 {
-
     public class GestiuneService
     {
         // ── VECTORUL DE TRANZACTII ────────────────────────────────────
@@ -18,7 +18,6 @@ namespace GestiuneTargAuto.Services
         // 1. GESTIONARE TRANZACTII
         // ════════════════════════════════════════════════════════════
 
-        // Salveaza o tranzactie. Returneaza true daca a reusit.
         public bool AdaugaTranzactie(Tranzactie t)
         {
             if (_nrTranzactii >= _tranzactii.Length)
@@ -27,64 +26,57 @@ namespace GestiuneTargAuto.Services
             _tranzactii[_nrTranzactii] = t;
             _nrTranzactii++;
 
-            // La vanzare, scoatem automat masina din lista disponibile (dupa VIN)
+            // La vanzare, scoatem automat masina din lista disponibile
             ScoateMasinaDisponibila(t.Vehicul.SerieSasiu);
 
             return true;
         }
 
-        // Alias pentru compatibilitate
         public void AdaugaTranzactieDirecta(Tranzactie t) => AdaugaTranzactie(t);
 
         public int GetNrTranzactii() => _nrTranzactii;
 
-        // Returneaza toate tranzactiile
+        // Returneaza toate tranzactiile — LINQ: Take doar elementele populate
         public Tranzactie[] GetToate()
         {
-            Tranzactie[] rezultat = new Tranzactie[_nrTranzactii];
-            Array.Copy(_tranzactii, rezultat, _nrTranzactii);
-            return rezultat;
+            return _tranzactii.Take(_nrTranzactii).ToArray();
         }
 
         // ════════════════════════════════════════════════════════════
         // 2. GESTIONARE MASINI DISPONIBILE
         // ════════════════════════════════════════════════════════════
 
-        // Adauga o masina in lista disponibile.
-        // Returneaza true daca a reusit, false daca VIN-ul exista deja sau vectorul e plin.
         public bool AdaugaMasinaDisponibila(Auto masina)
         {
             if (_nrMasiniDisponibile >= _masiniDisponibile.Length)
                 return false;
 
-            // Verificam sa nu existe deja acelasi VIN
-            for (int i = 0; i < _nrMasiniDisponibile; i++)
-                if (_masiniDisponibile[i].SerieSasiu.Equals(masina.SerieSasiu, StringComparison.OrdinalIgnoreCase))
-                    return false;
+            // LINQ: verificam duplicat dupa VIN
+            bool existaDeja = _masiniDisponibile
+                .Take(_nrMasiniDisponibile)
+                .Any(m => m.SerieSasiu.Equals(masina.SerieSasiu, StringComparison.OrdinalIgnoreCase));
+
+            if (existaDeja) return false;
 
             _masiniDisponibile[_nrMasiniDisponibile] = masina;
             _nrMasiniDisponibile++;
             return true;
         }
 
-        // Returneaza toate masinile disponibile
+        // Returneaza toate masinile disponibile — LINQ: Take
         public Auto[] GetMasiniDisponibile()
         {
-            Auto[] rezultat = new Auto[_nrMasiniDisponibile];
-            Array.Copy(_masiniDisponibile, rezultat, _nrMasiniDisponibile);
-            return rezultat;
+            return _masiniDisponibile.Take(_nrMasiniDisponibile).ToArray();
         }
 
         public int GetNrMasiniDisponibile() => _nrMasiniDisponibile;
 
-        // Scoate o masina din lista disponibile dupa VIN (apelat automat la vanzare)
         public bool ScoateMasinaDisponibila(string vin)
         {
             for (int i = 0; i < _nrMasiniDisponibile; i++)
             {
                 if (_masiniDisponibile[i].SerieSasiu.Equals(vin, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Mutam ultimul element pe pozitia gasita
                     _masiniDisponibile[i] = _masiniDisponibile[_nrMasiniDisponibile - 1];
                     _masiniDisponibile[_nrMasiniDisponibile - 1] = null;
                     _nrMasiniDisponibile--;
@@ -94,53 +86,49 @@ namespace GestiuneTargAuto.Services
             return false;
         }
 
-        // ════════════════════════════════════════════════════════════
-        // 3. CAUTARE TRANZACTII DUPA CRITERII
-        // ════════════════════════════════════════════════════════════
-
         // Criteriu 1 — dupa firma vehiculului
         public Tranzactie[] CautaDupaFirma(string firma)
         {
-            int gasite = 0;
-            Tranzactie[] temp = new Tranzactie[_nrTranzactii];
-
-            for (int i = 0; i < _nrTranzactii; i++)
-                if (_tranzactii[i].Vehicul.Firma.Equals(firma, StringComparison.OrdinalIgnoreCase))
-                    temp[gasite++] = _tranzactii[i];
-
-            Tranzactie[] rezultat = new Tranzactie[gasite];
-            Array.Copy(temp, rezultat, gasite);
-            return rezultat;
+            return _tranzactii
+                .Take(_nrTranzactii)
+                .Where(t => t.Vehicul.Firma.Equals(firma, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
         }
 
         // Criteriu 2 — dupa numele de familie al vanzatorului
         public Tranzactie[] CautaDupaVanzator(string nume)
         {
-            int gasite = 0;
-            Tranzactie[] temp = new Tranzactie[_nrTranzactii];
-
-            for (int i = 0; i < _nrTranzactii; i++)
-                if (_tranzactii[i].Vanzator.Nume.Equals(nume, StringComparison.OrdinalIgnoreCase))
-                    temp[gasite++] = _tranzactii[i];
-
-            Tranzactie[] rezultat = new Tranzactie[gasite];
-            Array.Copy(temp, rezultat, gasite);
-            return rezultat;
+            return _tranzactii
+                .Take(_nrTranzactii)
+                .Where(t => t.Vanzator.Nume.Equals(nume, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
         }
 
         // Criteriu 3 — dupa interval de pret
         public Tranzactie[] CautaDupaPret(decimal pretMin, decimal pretMax)
         {
-            int gasite = 0;
-            Tranzactie[] temp = new Tranzactie[_nrTranzactii];
+            return _tranzactii
+                .Take(_nrTranzactii)
+                .Where(t => t.PretTranzactie >= pretMin && t.PretTranzactie <= pretMax)
+                .ToArray();
+        }
 
-            for (int i = 0; i < _nrTranzactii; i++)
-                if (_tranzactii[i].PretTranzactie >= pretMin && _tranzactii[i].PretTranzactie <= pretMax)
-                    temp[gasite++] = _tranzactii[i];
+        // Criteriu 4 — dupa culoare (foloseste campul enum adaugat in Task 2)
+        public Tranzactie[] CautaDupaCuloare(Culoare culoare)
+        {
+            return _tranzactii
+                .Take(_nrTranzactii)
+                .Where(t => t.Vehicul.Culoare == culoare)
+                .ToArray();
+        }
 
-            Tranzactie[] rezultat = new Tranzactie[gasite];
-            Array.Copy(temp, rezultat, gasite);
-            return rezultat;
+        // Criteriu 5 — dupa optiune (Flags enum — gaseste masini care AU cel putin optiunea ceruta)
+        public Tranzactie[] CautaDupaOptiune(Optiuni optiune)
+        {
+            return _tranzactii
+                .Take(_nrTranzactii)
+                .Where(t => t.Vehicul.Optiuni.HasFlag(optiune))
+                .ToArray();
         }
     }
 }
