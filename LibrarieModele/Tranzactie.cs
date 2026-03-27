@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GestiuneTargAuto.Models
+namespace LibrarieModele
 {
     public class Tranzactie
     {

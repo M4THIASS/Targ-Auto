@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GestiuneTargAuto.Models
+namespace LibrarieModele
 {
     // ── Enum simplu — o singura valoare posibila ──────────────────
     public enum Culoare
