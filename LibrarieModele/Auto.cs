@@ -1,21 +1,13 @@
 ﻿using System;
+using System.Linq;
 
 namespace LibrarieModele
 {
-    // ── Enum simplu — o singura valoare posibila ──────────────────
     public enum Culoare
     {
-        Nedefinita,
-        Alb,
-        Negru,
-        Rosu,
-        Albastru,
-        Gri,
-        Argintiu
+        Nedefinita, Alb, Negru, Rosu, Albastru, Gri, Argintiu
     }
 
-    // ── Enum cu Flags — mai multe valori simultan ─────────────────
-    // Fiecare valoare este o putere a lui 2 pentru a permite combinatii
     [Flags]
     public enum Optiuni
     {
@@ -34,14 +26,24 @@ namespace LibrarieModele
         public string Model { get; set; }
         public int AnFabricatie { get; set; }
         public string SerieSasiu { get; set; }
-
-        // ── Campurile enum ────────────────────────────────────────
         public Culoare Culoare { get; set; } = Culoare.Nedefinita;
         public Optiuni Optiuni { get; set; } = Optiuni.Niciuna;
 
-        public override string ToString()
-        {
-            return $"{Firma} {Model} ({AnFabricatie}) | Culoare: {Culoare} | Optiuni: {Optiuni}";
-        }
+        public override string ToString() =>
+            $"{Firma} {Model} ({AnFabricatie}) | Culoare: {Culoare} | Optiuni: {Optiuni}";
+
+        // ── Metode de cautare statice ─────────────────────────────
+        public static Auto[] CautaDupaFirma(Auto[] stoc, string firma) =>
+            stoc.Where(m => m.Firma.Equals(firma, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+        public static Auto[] CautaDupaCuloare(Auto[] stoc, Culoare culoare) =>
+            stoc.Where(m => m.Culoare == culoare).ToArray();
+
+        public static Auto[] CautaDupaOptiune(Auto[] stoc, Optiuni optiune) =>
+            stoc.Where(m => m.Optiuni.HasFlag(optiune)).ToArray();
+
+        public static Auto[] CautaDupaAn(Auto[] stoc, int an) =>
+            stoc.Where(m => m.AnFabricatie == an).ToArray();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using LibrarieModele;
 
-namespace NivelStocareDate
+namespace NivelStocareDate.Stoc
 {
     /// <summary>
     /// Manager responsabil exclusiv pentru stocul de masini disponibile.
@@ -59,30 +59,6 @@ namespace NivelStocareDate
 
         public bool ExistaVin(string vin)
             => _masini.Any(m => m.SerieSasiu.Equals(vin, StringComparison.OrdinalIgnoreCase));
-
-        // ════════════════════════════════════════════════════════════
-        // CAUTARE
-        // ════════════════════════════════════════════════════════════
-
-        public Auto[] CautaDupaFirma(string firma)
-            => _masini
-                .Where(m => m.Firma.Equals(firma, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
-
-        public Auto[] CautaDupaCuloare(Culoare culoare)
-            => _masini
-                .Where(m => m.Culoare == culoare)
-                .ToArray();
-
-        public Auto[] CautaDupaOptiune(Optiuni optiune)
-            => _masini
-                .Where(m => m.Optiuni.HasFlag(optiune))
-                .ToArray();
-
-        public Auto[] CautaDupaAn(int anMin, int anMax)
-            => _masini
-                .Where(m => m.AnFabricatie >= anMin && m.AnFabricatie <= anMax)
-                .ToArray();
 
         // ════════════════════════════════════════════════════════════
         // PERSISTENTA

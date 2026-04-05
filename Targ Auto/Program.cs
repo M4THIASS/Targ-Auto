@@ -1,5 +1,7 @@
 ﻿using LibrarieModele;
 using NivelStocareDate;
+using NivelStocareDate.Stoc;
+using NivelStocareDate.Tranzactii;
 
 namespace Evidenta
 {
@@ -8,6 +10,8 @@ namespace Evidenta
         static IStocareDate _stocare = StocareFactory.CreeazaStocare("text");
         static TranzactieManager _tranzMgr = new TranzactieManager(_stocare);
         static StocManager _stocMgr = new StocManager(_stocare);
+        static TranzactieQuery _tranzQuery = new TranzactieQuery(_tranzMgr);
+        static StocQuery _stocQuery = new StocQuery(_stocMgr);
 
         static void Main(string[] args)
         {
@@ -168,7 +172,7 @@ namespace Evidenta
             Console.WriteLine("=== CAUTARE TRANZACTII DUPA FIRMA ===\n");
             Console.Write("Firma cautata: ");
             string firma = Console.ReadLine()?.Trim() ?? string.Empty;
-            AfiseazaRezultateTranzactii(_tranzMgr.CautaDupaFirma(firma), $"firma '{firma}'");
+            AfiseazaRezultateTranzactii(_tranzQuery.DupaFirma(firma), $"firma '{firma}'");
         }
 
         static void CautaDupaVanzator()
@@ -177,7 +181,7 @@ namespace Evidenta
             Console.WriteLine("=== CAUTARE TRANZACTII DUPA VANZATOR ===\n");
             Console.Write("Numele vanzatorului: ");
             string nume = Console.ReadLine()?.Trim() ?? string.Empty;
-            AfiseazaRezultateTranzactii(_tranzMgr.CautaDupaVanzator(nume), $"vanzatorul '{nume}'");
+            AfiseazaRezultateTranzactii(_tranzQuery.DupaVanzator(nume), $"vanzatorul '{nume}'");
         }
 
         static void CautaDupaPret()
@@ -191,7 +195,7 @@ namespace Evidenta
             Console.Write("Pret maxim (EUR): ");
             while (!decimal.TryParse(Console.ReadLine(), out pretMax) || pretMax < pretMin)
                 Console.Write($"Valoare invalida (>= {pretMin}): ");
-            AfiseazaRezultateTranzactii(_tranzMgr.CautaDupaPret(pretMin, pretMax), $"intervalul [{pretMin:N0} - {pretMax:N0}] EUR");
+            AfiseazaRezultateTranzactii(_tranzQuery.DupaPret(pretMin, pretMax), $"intervalul [{pretMin:N0} - {pretMax:N0}] EUR");
         }
 
         static void ModificaPret()
@@ -358,7 +362,7 @@ namespace Evidenta
             Console.WriteLine("=== CAUTARE STOC DUPA FIRMA ===\n");
             Console.Write("Firma cautata: ");
             string firma = Console.ReadLine()?.Trim() ?? string.Empty;
-            AfiseazaRezultateMasini(_stocMgr.CautaDupaFirma(firma), $"firma '{firma}'");
+            AfiseazaRezultateMasini(_stocQuery.DupaFirma(firma), $"firma '{firma}'");
         }
 
         static void CautaStocDupaCuloare()
@@ -366,7 +370,7 @@ namespace Evidenta
             Console.Clear();
             Console.WriteLine("=== CAUTARE STOC DUPA CULOARE ===\n");
             Culoare culoare = CitesteCuloare();
-            AfiseazaRezultateMasini(_stocMgr.CautaDupaCuloare(culoare), $"culoarea '{culoare}'");
+            AfiseazaRezultateMasini(_stocQuery.DupaCuloare(culoare), $"culoarea '{culoare}'");
         }
 
         static void CautaStocDupaOptiune()
@@ -374,7 +378,7 @@ namespace Evidenta
             Console.Clear();
             Console.WriteLine("=== CAUTARE STOC DUPA OPTIUNE ===\n");
             Optiuni optiune = CitesteOptiuneSimple();
-            AfiseazaRezultateMasini(_stocMgr.CautaDupaOptiune(optiune), $"optiunea '{optiune}'");
+            AfiseazaRezultateMasini(_stocQuery.DupaOptiune(optiune), $"optiunea '{optiune}'");
         }
 
         static void CautaStocDupaAn()
@@ -388,7 +392,7 @@ namespace Evidenta
             Console.Write("An maxim: ");
             while (!int.TryParse(Console.ReadLine(), out anMax) || anMax < anMin || anMax > DateTime.Now.Year)
                 Console.Write($"An invalid (>= {anMin}): ");
-            AfiseazaRezultateMasini(_stocMgr.CautaDupaAn(anMin, anMax), $"anii [{anMin} - {anMax}]");
+            AfiseazaRezultateMasini(_stocQuery.DupaAn(anMin, anMax), $"anii [{anMin} - {anMax}]");
         }
 
         // ════════════════════════════════════════════════════════════

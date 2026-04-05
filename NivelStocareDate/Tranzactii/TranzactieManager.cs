@@ -1,6 +1,6 @@
 ﻿using LibrarieModele;
 
-namespace NivelStocareDate
+namespace NivelStocareDate.Tranzactii
 {
     /// <summary>
     /// Manager responsabil exclusiv pentru tranzactii.
@@ -61,30 +61,6 @@ namespace NivelStocareDate
 
         public int Count => _tranzactii.Count;
 
-        public Tranzactie[] CautaDupaFirma(string firma)
-            => _tranzactii
-                .Where(t => t.Vehicul.Firma.Equals(firma, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
-
-        public Tranzactie[] CautaDupaVanzator(string nume)
-            => _tranzactii
-                .Where(t => t.Vanzator.Nume.Equals(nume, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
-
-        public Tranzactie[] CautaDupaPret(decimal pretMin, decimal pretMax)
-            => _tranzactii
-                .Where(t => t.PretTranzactie >= pretMin && t.PretTranzactie <= pretMax)
-                .ToArray();
-
-        public Tranzactie[] CautaDupaCuloare(Culoare culoare)
-            => _tranzactii
-                .Where(t => t.Vehicul.Culoare == culoare)
-                .ToArray();
-
-        public Tranzactie[] CautaDupaOptiune(Optiuni optiune)
-            => _tranzactii
-                .Where(t => t.Vehicul.Optiuni.HasFlag(optiune))
-                .ToArray();
 
         // ════════════════════════════════════════════════════════════
         // PERSISTENTA
