@@ -5,4 +5,5 @@
   <Project Path="LibrarieModele/LibrarieModele.csproj" Id="2f645c22-1518-4fc9-8bf3-7c27e7538b52" />
   <Project Path="NivelStocareDate/NivelStocareDate.csproj" Id="8cb06ed6-c830-4883-b485-7e500d13460f" />
   <Project Path="Targ Auto/Targ Auto.csproj" />
+  <Project Path="WpfTargAuto/WpfTargAuto.csproj" Id="db379fd2-5aec-4664-8dce-dbcf21ef62f3" />
 </Solution>
