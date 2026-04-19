@@ -17,13 +17,8 @@ namespace WpfTargAuto
         {
             InitializeComponent();
 
-            // Initializam stocare direct, fara factory
             IStocareDate stocare = new StocareTextService("date");
             _stocManager = new StocManager(stocare);
-
-            // Daca fisierul e gol sau nu exista, adaugam date demo
-            if (_stocManager.Count == 0)
-                IncarcaDateDemo();
 
             AfiseazaLista();
         }
