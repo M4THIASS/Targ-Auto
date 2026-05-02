@@ -28,6 +28,7 @@ namespace LibrarieModele
         public string SerieSasiu { get; set; }
         public Culoare Culoare { get; set; } = Culoare.Nedefinita;
         public Optiuni Optiuni { get; set; } = Optiuni.Niciuna;
+        public DateTime DataAdaugarii { get; set; } = DateTime.MinValue;
 
         public override string ToString() =>
             $"{Firma} {Model} ({AnFabricatie}) | Culoare: {Culoare} | Optiuni: {Optiuni}";

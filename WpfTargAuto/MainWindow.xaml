@@ -1,14 +1,14 @@
 ﻿<Window x:Class="WpfTargAuto.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
         Title="Gestiune Targ Auto"
-        Height="600" Width="900"
+        Height="600" Width="950"
         MinHeight="500" MinWidth="750"
         WindowStartupLocation="CenterScreen"
         Background="#1E1E2E">
 
     <Window.Resources>
-        <!-- Stiluri comune pentru butoane, etichete, campuri text (BONUS) -->
         <SolidColorBrush x:Key="Accent"   Color="#E94560"/>
         <SolidColorBrush x:Key="CardFund" Color="#2A2A3E"/>
         <SolidColorBrush x:Key="TextAlb"  Color="#EAEAEA"/>
@@ -16,22 +16,72 @@
         <SolidColorBrush x:Key="Verde"    Color="#2ECC71"/>
         <SolidColorBrush x:Key="Galben"   Color="#F39C12"/>
 
+        <Style TargetType="DatePicker">
+            <Setter Property="Background"   Value="#2A2A3E"/>
+            <Setter Property="Foreground"   Value="#EAEAEA"/>
+            <Setter Property="BorderBrush"  Value="#444466"/>
+            <Setter Property="FontFamily"   Value="Consolas"/>
+            <Setter Property="FontSize"     Value="13"/>
+        </Style>
+
+        <Style TargetType="DatePickerTextBox">
+            <Setter Property="Background"   Value="#2A2A3E"/>
+            <Setter Property="Foreground"   Value="#EAEAEA"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background"   Value="#2A2A3E"/>
+            <Setter Property="Foreground"   Value="#EAEAEA"/>
+            <Setter Property="FontFamily"   Value="Consolas"/>
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="Padding"      Value="8,6"/>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Foreground"        Value="#EAEAEA"/>
+            <Setter Property="FontFamily"        Value="Consolas"/>
+            <Setter Property="FontSize"          Value="13"/>
+            <Setter Property="Padding"           Value="10,8"/>
+            <Setter Property="Margin"            Value="0,0,0,4"/>
+            <Setter Property="Background"        Value="Transparent"/>
+            <Setter Property="BorderThickness"   Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}"
+                        CornerRadius="6"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#E94560"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#22223A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="StilBtnMeniu" TargetType="RadioButton">
-            <Setter Property="Foreground"           Value="#888899"/>
-            <Setter Property="FontFamily"           Value="Consolas"/>
-            <Setter Property="FontSize"             Value="13"/>
-            <Setter Property="Padding"              Value="12,10"/>
-            <Setter Property="Margin"               Value="0,0,0,4"/>
-            <Setter Property="Cursor"               Value="Hand"/>
-            <Setter Property="Background"           Value="Transparent"/>
-            <Setter Property="BorderThickness"      Value="0"/>
+            <Setter Property="Foreground"                 Value="#888899"/>
+            <Setter Property="FontFamily"                 Value="Consolas"/>
+            <Setter Property="FontSize"                   Value="13"/>
+            <Setter Property="Padding"                    Value="12,10"/>
+            <Setter Property="Margin"                     Value="0,0,0,4"/>
+            <Setter Property="Cursor"                     Value="Hand"/>
+            <Setter Property="Background"                 Value="Transparent"/>
+            <Setter Property="BorderThickness"            Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                Padding="{TemplateBinding Padding}">
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -74,27 +124,88 @@
             </Setter>
         </Style>
 
-        <Style x:Key="StilBtnSecundar" TargetType="Button"
-               BasedOn="{StaticResource StilBtn}">
+        <Style x:Key="StilBtnSecundar" TargetType="Button" BasedOn="{StaticResource StilBtn}">
             <Setter Property="Background" Value="#2A2A3E"/>
             <Setter Property="Foreground" Value="#AAAAAA"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#333355"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
         <Style x:Key="StilTextBox" TargetType="TextBox">
-            <Setter Property="Height"                  Value="34"/>
-            <Setter Property="FontFamily"              Value="Consolas"/>
-            <Setter Property="FontSize"                Value="13"/>
-            <Setter Property="Background"              Value="#2A2A3E"/>
-            <Setter Property="Foreground"              Value="White"/>
-            <Setter Property="BorderBrush"             Value="#444466"/>
-            <Setter Property="BorderThickness"         Value="1"/>
-            <Setter Property="Padding"                 Value="8,0"/>
+            <Setter Property="Height"                   Value="34"/>
+            <Setter Property="FontFamily"               Value="Consolas"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Background"               Value="#2A2A3E"/>
+            <Setter Property="Foreground"               Value="White"/>
+            <Setter Property="BorderBrush"              Value="#444466"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="Padding"                  Value="8,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="StilComboBox" TargetType="ComboBox">
+            <Setter Property="Height"          Value="34"/>
+            <Setter Property="FontFamily"      Value="Consolas"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="Foreground"      Value="#EAEAEA"/>
+            <Setter Property="Background"      Value="#2A2A3E"/>
+            <Setter Property="BorderBrush"     Value="#444466"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"         Value="8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="30"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.ColumnSpan="2"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"/>
+
+                            <ContentPresenter Grid.Column="0"
+                                      Content="{TemplateBinding SelectionBoxItem}"
+                                      Margin="8,0,0,0"
+                                      VerticalAlignment="Center"
+                                      TextBlock.Foreground="#EAEAEA"
+                                      TextBlock.FontFamily="Consolas"
+                                      TextBlock.FontSize="13"/>
+
+                            <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  IsChecked="{Binding IsDropDownOpen,
+                                              RelativeSource={RelativeSource TemplatedParent},
+                                              Mode=TwoWay}"
+                                  Focusable="False"/>
+
+                            <TextBlock Grid.Column="1" Text="▾"
+                               Foreground="#EAEAEA"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+
+                            <Popup x:Name="PART_Popup"
+                           IsOpen="{TemplateBinding IsDropDownOpen}"
+                           Placement="Bottom"
+                           AllowsTransparency="True"
+                           Focusable="False">
+                                <Border Background="#2A2A3E"
+                                BorderBrush="#444466"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                MinWidth="{TemplateBinding ActualWidth}">
+                                    <ScrollViewer MaxHeight="200">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="StilLabel" TargetType="TextBlock">
@@ -105,20 +216,15 @@
         </Style>
     </Window.Resources>
 
-    <!-- Layout principal responsive: meniu stanga + continut dreapta -->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" MinWidth="160"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- ═══════════════════════════════
-             MENIU STANGA
-             ═══════════════════════════════ -->
+        <!-- MENIU STANGA -->
         <Border Grid.Column="0" Background="#12122A">
             <DockPanel>
-
-                <!-- Logo -->
                 <StackPanel DockPanel.Dock="Top" Margin="16,20,16,24">
                     <TextBlock Text="TARG AUTO"
                                FontFamily="Consolas" FontSize="18" FontWeight="Bold"
@@ -129,37 +235,31 @@
                                Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <!-- Butoane navigare — RadioButton ca sa fie doar unul activ -->
                 <StackPanel DockPanel.Dock="Top" Margin="10,0,10,0">
-                    <RadioButton x:Name="btnMeniuLista"
-                                 Content="Lista masini"
+                    <RadioButton x:Name="btnMeniuLista"   Content="Lista masini"
                                  Style="{StaticResource StilBtnMeniu}"
-                                 IsChecked="True"
-                                 Checked="BtnMeniu_Checked"/>
-                    <RadioButton x:Name="btnMeniuCautare"
-                                 Content="Cauta masina"
+                                 IsChecked="True" Checked="BtnMeniu_Checked"/>
+                    <RadioButton x:Name="btnMeniuCautare" Content="Cauta masina"
                                  Style="{StaticResource StilBtnMeniu}"
                                  Checked="BtnMeniu_Checked"/>
-                    <RadioButton x:Name="btnMeniuAdauga"
-                                 Content="Adauga masina"
+                    <RadioButton x:Name="btnMeniuAdauga"  Content="Adauga masina"
+                                 Style="{StaticResource StilBtnMeniu}"
+                                 Checked="BtnMeniu_Checked"/>
+                    <RadioButton x:Name="btnMeniuEditeaza" Content="Editeaza masina"
                                  Style="{StaticResource StilBtnMeniu}"
                                  Checked="BtnMeniu_Checked"/>
                 </StackPanel>
 
-                <!-- Status jos -->
                 <Border DockPanel.Dock="Bottom" Padding="16,12">
                     <TextBlock x:Name="txtStatus"
                                Text="0 masini"
                                FontFamily="Consolas" FontSize="11"
                                Foreground="{StaticResource TextGri}"/>
                 </Border>
-
             </DockPanel>
         </Border>
 
-        <!-- ═══════════════════════════════
-             CONTINUT DREAPTA
-             ═══════════════════════════════ -->
+        <!-- CONTINUT DREAPTA -->
         <Grid Grid.Column="1">
 
             <!-- PAGINA 1: Lista masini -->
@@ -169,33 +269,31 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Header -->
                 <Border Grid.Row="0" Background="#2A2A3E" Padding="24,16">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Left">
                             <TextBlock Text="Lista masini disponibile"
                                        FontFamily="Consolas" FontSize="18" FontWeight="Bold"
-                                       Foreground="{StaticResource TextAlb}" Width="250"/>
+                                       Foreground="{StaticResource TextAlb}"/>
                             <TextBlock x:Name="txtSubtitluLista"
                                        FontFamily="Consolas" FontSize="11"
                                        Foreground="{StaticResource TextGri}"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="- Sterge selectata"
+                                Content="- Sterge"
                                 Style="{StaticResource StilBtnSecundar}"
                                 VerticalAlignment="Center"
-                                Click="btnSterge_Click"
-                                Margin="8,0,0,0"/>
+                                Click="btnSterge_Click" Margin="8,0,0,0"/>
+                        
                         <Button DockPanel.Dock="Right"
-                                Content="+ Adauga masina"
+                                Content="+ Adauga"
                                 Style="{StaticResource StilBtn}"
                                 VerticalAlignment="Center"
                                 Click="btnAdauga_Click"/>
                     </DockPanel>
                 </Border>
 
-                <!-- Lista + Detalii: responsive cu Grid -->
                 <Grid Grid.Row="1" Margin="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="150"/>
@@ -203,23 +301,21 @@
                         <ColumnDefinition Width="1.5*" MinWidth="200"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Lista butoane masini -->
-                    <Border Grid.Column="0"
-                            Background="#2A2A3E"
-                            CornerRadius="8">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                            <StackPanel x:Name="pnlLista"/>
-                        </ScrollViewer>
+                    <!-- ListBox masini -->
+                    <Border Grid.Column="0" Background="#2A2A3E" CornerRadius="8">
+                        <ListBox x:Name="lstMasini"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="#EAEAEA"
+                                 FontFamily="Consolas" FontSize="12"
+                                 Padding="8"
+                                 SelectionChanged="lstMasini_SelectionChanged"/>
                     </Border>
 
                     <!-- Detalii masina selectata -->
-                    <Border Grid.Column="2"
-                            Background="#2A2A3E"
-                            CornerRadius="8"
-                            Padding="20">
+                    <Border Grid.Column="2" Background="#2A2A3E"
+                            CornerRadius="8" Padding="20">
                         <StackPanel>
-
-                            <!-- Placeholder -->
                             <TextBlock x:Name="txtPlaceholder"
                                        Text="Selectati o masina din lista"
                                        FontFamily="Consolas" FontSize="14"
@@ -227,14 +323,11 @@
                                        HorizontalAlignment="Center"
                                        Margin="0,60,0,0"/>
 
-                            <!-- Detalii -->
                             <StackPanel x:Name="pnlDetalii" Visibility="Collapsed">
-
                                 <TextBlock x:Name="txtDetaliuTitlu"
                                            FontFamily="Consolas" FontSize="16" FontWeight="Bold"
                                            Foreground="{StaticResource TextAlb}"
                                            Margin="0,0,0,16"/>
-
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -243,54 +336,49 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
                                     <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,12">
                                         <TextBlock Text="Firma" Style="{StaticResource StilLabel}"/>
-                                        <TextBlock x:Name="txtFirma"
-                                                   FontFamily="Consolas" FontSize="13" FontWeight="Bold"
+                                        <TextBlock x:Name="txtFirma" FontFamily="Consolas"
+                                                   FontSize="13" FontWeight="Bold"
                                                    Foreground="{StaticResource TextAlb}"/>
                                     </StackPanel>
-
                                     <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,12">
                                         <TextBlock Text="Model" Style="{StaticResource StilLabel}"/>
-                                        <TextBlock x:Name="txtModel"
-                                                   FontFamily="Consolas" FontSize="13"
-                                                   Foreground="{StaticResource TextAlb}"/>
+                                        <TextBlock x:Name="txtModel" FontFamily="Consolas"
+                                                   FontSize="13" Foreground="{StaticResource TextAlb}"/>
                                     </StackPanel>
-
                                     <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,12">
                                         <TextBlock Text="An fabricatie" Style="{StaticResource StilLabel}"/>
-                                        <TextBlock x:Name="txtAn"
-                                                   FontFamily="Consolas" FontSize="13"
-                                                   Foreground="{StaticResource Galben}"/>
+                                        <TextBlock x:Name="txtAn" FontFamily="Consolas"
+                                                   FontSize="13" Foreground="{StaticResource Galben}"/>
                                     </StackPanel>
-
                                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,0,0,12">
                                         <TextBlock Text="Serie VIN" Style="{StaticResource StilLabel}"/>
-                                        <TextBlock x:Name="txtVin"
-                                                   FontFamily="Consolas" FontSize="11"
-                                                   Foreground="{StaticResource TextGri}"/>
+                                        <TextBlock x:Name="txtVin" FontFamily="Consolas"
+                                                   FontSize="11" Foreground="{StaticResource TextGri}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,8,12">
+                                        <TextBlock Text="Data adaugarii" Style="{StaticResource StilLabel}"/>
+                                        <TextBlock x:Name="txtData" FontFamily="Consolas"
+                                                   FontSize="13" Foreground="{StaticResource TextAlb}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Culoare -->
                                 <TextBlock Text="Culoare" Style="{StaticResource StilLabel}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                    <Border x:Name="rectCuloare"
-                                            Width="22" Height="22" CornerRadius="4"
-                                            Margin="0,0,8,0"/>
-                                    <TextBlock x:Name="txtCuloare"
-                                               FontFamily="Consolas" FontSize="13"
-                                               Foreground="{StaticResource TextAlb}"
+                                    <Border x:Name="rectCuloare" Width="22" Height="22"
+                                            CornerRadius="4" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="txtCuloare" FontFamily="Consolas"
+                                               FontSize="13" Foreground="{StaticResource TextAlb}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
-                                <!-- Optiuni -->
                                 <TextBlock Text="Optiuni" Style="{StaticResource StilLabel}"/>
-                                <TextBlock x:Name="txtOptiuni"
-                                           FontFamily="Consolas" FontSize="12"
-                                           Foreground="{StaticResource Verde}"
+                                <TextBlock x:Name="txtOptiuni" FontFamily="Consolas"
+                                           FontSize="12" Foreground="{StaticResource Verde}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                         </StackPanel>
@@ -311,33 +399,26 @@
                                Foreground="{StaticResource TextAlb}"/>
                 </Border>
 
-                <StackPanel Grid.Row="1" Margin="24,20,24,0" MaxWidth="500"
-                            HorizontalAlignment="Left">
+                <StackPanel Grid.Row="1" Margin="24,20,24,0"
+                            MaxWidth="500" HorizontalAlignment="Left">
 
-                    <!-- Criteriu de cautare cu RadioButton -->
                     <TextBlock Text="Cauta dupa:"
                                FontFamily="Consolas" FontSize="13"
-                               Foreground="{StaticResource TextGri}"
-                               Margin="0,0,0,10"/>
+                               Foreground="{StaticResource TextGri}" Margin="0,0,0,10"/>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <RadioButton x:Name="rbFirma" Content="Firma"
-                                     IsChecked="True"
+                        <RadioButton x:Name="rbFirma" Content="Firma" IsChecked="True"
                                      Foreground="{StaticResource TextAlb}"
-                                     FontFamily="Consolas" FontSize="13"
-                                     Margin="0,0,20,0"/>
+                                     FontFamily="Consolas" FontSize="13" Margin="0,0,20,0"/>
                         <RadioButton x:Name="rbAn" Content="An fabricatie"
                                      Foreground="{StaticResource TextAlb}"
-                                     FontFamily="Consolas" FontSize="13"
-                                     Margin="0,0,20,0"/>
+                                     FontFamily="Consolas" FontSize="13" Margin="0,0,20,0"/>
                         <RadioButton x:Name="rbVin" Content="Serie VIN"
                                      Foreground="{StaticResource TextAlb}"
                                      FontFamily="Consolas" FontSize="13"/>
                     </StackPanel>
 
-                    <!-- Camp cautare -->
-                    <TextBlock Text="Termen de cautare"
-                               Style="{StaticResource StilLabel}"/>
+                    <TextBlock Text="Termen de cautare" Style="{StaticResource StilLabel}"/>
                     <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -351,22 +432,23 @@
                                 Click="btnCauta_Click"/>
                     </Grid>
 
-                    <!-- Rezultate -->
-                    <TextBlock x:Name="txtRezCautare"
-                               FontFamily="Consolas" FontSize="12"
-                               Foreground="{StaticResource TextGri}"
-                               Margin="0,0,0,8"/>
+                    <TextBlock x:Name="txtRezCautare" FontFamily="Consolas" FontSize="12"
+                               Foreground="{StaticResource TextGri}" Margin="0,0,0,8"/>
 
+                    <!-- ListBox pentru rezultate cautare -->
                     <Border Background="#2A2A3E" CornerRadius="8" MaxHeight="300">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                            <StackPanel x:Name="pnlRezultate"/>
-                        </ScrollViewer>
+                        <ListBox x:Name="lstRezultate"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{StaticResource TextAlb}"
+                                 FontFamily="Consolas" FontSize="12"
+                                 Padding="8"
+                                 SelectionMode="Single"/>
                     </Border>
-
                 </StackPanel>
             </Grid>
 
-            <!-- PAGINA 3: Adauga masina inline -->
+            <!-- PAGINA 3: Adauga masina -->
             <Grid x:Name="paginaAdauga" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -380,8 +462,7 @@
                 </Border>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="24,20,24,20" MaxWidth="500"
-                                HorizontalAlignment="Left">
+                    <StackPanel Margin="24,20,24,20" MaxWidth="500" HorizontalAlignment="Left">
 
                         <!-- Firma -->
                         <TextBlock Text="Firma producatoare" Style="{StaticResource StilLabel}"/>
@@ -393,8 +474,7 @@
                                    Margin="0,0,0,8" Visibility="Collapsed"/>
 
                         <!-- Model -->
-                        <TextBlock Text="Model" Style="{StaticResource StilLabel}"
-                                   Margin="0,8,0,4"/>
+                        <TextBlock Text="Model" Style="{StaticResource StilLabel}" Margin="0,8,0,4"/>
                         <TextBox x:Name="txtAddModel" Style="{StaticResource StilTextBox}"
                                  Margin="0,0,0,4"/>
                         <TextBlock x:Name="errAddModel"
@@ -402,23 +482,21 @@
                                    Foreground="Red" FontFamily="Consolas" FontSize="11"
                                    Margin="0,0,0,8" Visibility="Collapsed"/>
 
-                        <!-- An + VIN pe acelasi rand cu Grid -->
+                        <!-- An + VIN -->
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="16"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="An fabricatie" Style="{StaticResource StilLabel}"/>
                                 <TextBox x:Name="txtAddAn" Style="{StaticResource StilTextBox}"
                                          Margin="0,0,0,4"/>
-                                <TextBlock x:Name="errAddAn"
-                                           Foreground="Red" FontFamily="Consolas" FontSize="11"
+                                <TextBlock x:Name="errAddAn" Foreground="Red"
+                                           FontFamily="Consolas" FontSize="11"
                                            Margin="0,0,0,8" Visibility="Collapsed"/>
                             </StackPanel>
-
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Serie sasiu (VIN)" Style="{StaticResource StilLabel}"/>
                                 <TextBox x:Name="txtAddVin" Style="{StaticResource StilTextBox}"
@@ -430,32 +508,41 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Culoare -->
-                        <TextBlock Text="Culoare" Style="{StaticResource StilLabel}"
-                                   Margin="0,8,0,8"/>
-                        <WrapPanel x:Name="pnlAddCulori" Margin="0,0,0,4"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <TextBlock Text="Selectata: "
-                                       FontFamily="Consolas" FontSize="12"
-                                       Foreground="{StaticResource TextGri}"
-                                       VerticalAlignment="Center"/>
-                            <Border x:Name="rectAddPreview"
-                                    Width="20" Height="20" CornerRadius="4"
-                                    Background="#2A2A3E" BorderBrush="#444466"
-                                    BorderThickness="1" Margin="6,0,8,0"/>
-                            <TextBlock x:Name="txtAddCuloareSelectata"
-                                       Text="Niciuna"
+                        <!-- Data adaugarii - DatePicker -->
+                        <TextBlock Text="Data adaugarii" Style="{StaticResource StilLabel}"
+                                   Margin="0,8,0,4"/>
+                        <DatePicker x:Name="dtpAddData"
+                                    Height="34" FontFamily="Consolas" FontSize="13"
+                                    Background="#2A2A3E" Foreground="White"
+                                    BorderBrush="#444466"
+                                    SelectedDateFormat="Short"
+                                    DisplayDateEnd="{x:Static system:DateTime.Today}"
+                                    Margin="0,0,0,12"/>
+
+                        <!-- Culoare - ComboBox -->
+                        <TextBlock Text="Culoare" Style="{StaticResource StilLabel}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="cmbAddCuloare"
+                                  Style="{StaticResource StilComboBox}"
+                                  Margin="0,0,0,4"
+                                  SelectionChanged="cmbAddCuloare_SelectionChanged"/>
+                        <TextBlock x:Name="errAddCuloare" Text="Selectati o culoare!"
+                                   Foreground="Red" FontFamily="Consolas" FontSize="11"
+                                   Margin="0,0,0,8" Visibility="Collapsed"/>
+
+                        <!-- Preview culoare -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border x:Name="rectAddPreview" Width="20" Height="20"
+                                    CornerRadius="4" Background="#2A2A3E"
+                                    BorderBrush="#444466" BorderThickness="1" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="txtAddCuloareSelectata" Text="Niciuna"
                                        FontFamily="Consolas" FontSize="12"
                                        Foreground="{StaticResource TextGri}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock x:Name="errAddCuloare" Text="Selectati o culoare!"
-                                   Foreground="Red" FontFamily="Consolas" FontSize="11"
-                                   Margin="0,4,0,8" Visibility="Collapsed"/>
 
                         <!-- Optiuni cu CheckBox -->
                         <TextBlock Text="Optiuni disponibile" Style="{StaticResource StilLabel}"
-                                   Margin="0,8,0,8"/>
+                                   Margin="0,0,0,8"/>
                         <WrapPanel x:Name="pnlAddOptiuni" Margin="0,0,0,16"/>
 
                         <!-- Butoane -->
@@ -471,12 +558,174 @@
                                     Click="btnSalveazaInline_Click"/>
                             <Button Grid.Column="2" Content="Anuleaza"
                                     Style="{StaticResource StilBtnSecundar}"
-                                    Height="38"
-                                    Click="btnAnuleazaInline_Click"/>
+                                    Height="38" Click="btnAnuleazaInline_Click"/>
                         </Grid>
 
                     </StackPanel>
                 </ScrollViewer>
+            </Grid>
+
+            <!-- PAGINA 4: Editeaza masina -->
+            <Grid x:Name="paginaEditeaza" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="#2A2A3E" Padding="24,16">
+                    <TextBlock Text="Editeaza masina"
+                   FontFamily="Consolas" FontSize="18" FontWeight="Bold"
+                   Foreground="{StaticResource TextAlb}"/>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="150"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="2*" MinWidth="200"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Stanga: lista masini pentru selectie -->
+                    <Border Grid.Column="0" Background="#2A2A3E" CornerRadius="8">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                           Text="Alege masina:"
+                           FontFamily="Consolas" FontSize="11"
+                           Foreground="{StaticResource TextGri}"
+                           Margin="12,12,12,6"/>
+                            <TextBox DockPanel.Dock="Top"
+                         x:Name="txtEditCautare"
+                         FontFamily="Consolas" FontSize="12"
+                         Background="#1E1E2E" Foreground="White"
+                         BorderBrush="#444466" BorderThickness="1"
+                         Padding="8,6" Margin="8,0,8,8"
+                         TextChanged="txtEditCautare_TextChanged"/>
+                            <ListBox x:Name="lstEditMasini"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="#EAEAEA"
+                         FontFamily="Consolas" FontSize="12"
+                         Padding="8"
+                         SelectionChanged="lstEditMasini_SelectionChanged"/>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Dreapta: formular editare -->
+                    <Border Grid.Column="2" Background="#2A2A3E" CornerRadius="8">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="20">
+
+                                <!-- Placeholder cand nu e selectata nicio masina -->
+                                <TextBlock x:Name="txtEditPlaceholder"
+                               Text="Selectati o masina din lista"
+                               FontFamily="Consolas" FontSize="14"
+                               Foreground="{StaticResource TextGri}"
+                               HorizontalAlignment="Center"
+                               Margin="0,60,0,0"/>
+
+                                <!-- Formular editare -->
+                                <StackPanel x:Name="pnlEditFormular" Visibility="Collapsed">
+
+                                    <TextBlock x:Name="txtEditTitlu"
+                                   FontFamily="Consolas" FontSize="14"
+                                   Foreground="{StaticResource Accent}"
+                                   Margin="0,0,0,16"/>
+
+                                    <!-- Firma -->
+                                    <TextBlock Text="Firma producatoare" Style="{StaticResource StilLabel}"/>
+                                    <TextBox x:Name="txtEditFirma" Style="{StaticResource StilTextBox}"
+                                 Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="errEditFirma"
+                                   Text="Firma trebuie sa aiba intre 2 si 30 de caractere!"
+                                   Foreground="Red" FontFamily="Consolas" FontSize="11"
+                                   Margin="0,0,0,8" Visibility="Collapsed"/>
+
+                                    <!-- Model -->
+                                    <TextBlock Text="Model" Style="{StaticResource StilLabel}" Margin="0,8,0,4"/>
+                                    <TextBox x:Name="txtEditModel" Style="{StaticResource StilTextBox}"
+                                 Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="errEditModel"
+                                   Text="Modelul trebuie sa aiba intre 1 si 30 de caractere!"
+                                   Foreground="Red" FontFamily="Consolas" FontSize="11"
+                                   Margin="0,0,0,8" Visibility="Collapsed"/>
+
+                                    <!-- An + VIN -->
+                                    <Grid Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="An fabricatie" Style="{StaticResource StilLabel}"/>
+                                            <TextBox x:Name="txtEditAn" Style="{StaticResource StilTextBox}"
+                                         Margin="0,0,0,4"/>
+                                            <TextBlock x:Name="errEditAn" Foreground="Red"
+                                           FontFamily="Consolas" FontSize="11"
+                                           Margin="0,0,0,8" Visibility="Collapsed"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Serie sasiu (VIN)" Style="{StaticResource StilLabel}"/>
+                                            <TextBox x:Name="txtEditVin" Style="{StaticResource StilTextBox}"
+                                         IsReadOnly="True" Opacity="0.5"
+                                         Margin="0,0,0,4"/>
+                                            <TextBlock Text="VIN-ul nu poate fi modificat."
+                                           Foreground="#888899" FontFamily="Consolas" FontSize="11"
+                                           Margin="0,0,0,8"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Data -->
+                                    <TextBlock Text="Data adaugarii" Style="{StaticResource StilLabel}"
+                                   Margin="0,8,0,4"/>
+                                    <DatePicker x:Name="dtpEditData"
+                                    Height="34" FontFamily="Consolas" FontSize="13"
+                                    Background="#2A2A3E" Foreground="White"
+                                    BorderBrush="#444466" SelectedDateFormat="Short"
+                                    Margin="0,0,0,12"/>
+
+                                    <!-- Culoare -->
+                                    <TextBlock Text="Culoare" Style="{StaticResource StilLabel}" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="cmbEditCuloare"
+                                  Style="{StaticResource StilComboBox}"
+                                  Margin="0,0,0,4"
+                                  SelectionChanged="cmbEditCuloare_SelectionChanged"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,12">
+                                        <Border x:Name="rectEditPreview" Width="20" Height="20"
+                                    CornerRadius="4" Background="#2A2A3E"
+                                    BorderBrush="#444466" BorderThickness="1" Margin="0,0,8,0"/>
+                                        <TextBlock x:Name="txtEditCuloareSelectata" Text="Niciuna"
+                                       FontFamily="Consolas" FontSize="12"
+                                       Foreground="{StaticResource TextGri}"
+                                       VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Optiuni -->
+                                    <TextBlock Text="Optiuni disponibile" Style="{StaticResource StilLabel}"
+                                   Margin="0,0,0,8"/>
+                                    <WrapPanel x:Name="pnlEditOptiuni" Margin="0,0,0,16"/>
+
+                                    <!-- Butoane -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" Content="Salveaza"
+                                    Style="{StaticResource StilBtn}"
+                                    Height="38" FontWeight="Bold"
+                                    Click="btnSalveazaEdit_Click"/>
+                                        <Button Grid.Column="2" Content="Anuleaza"
+                                    Style="{StaticResource StilBtnSecundar}"
+                                    Height="38" Click="btnAnuleazaEdit_Click"/>
+                                    </Grid>
+
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
             </Grid>
 
         </Grid>

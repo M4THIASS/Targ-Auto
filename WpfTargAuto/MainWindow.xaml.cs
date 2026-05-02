@@ -24,10 +24,20 @@ namespace WpfTargAuto
         private readonly StocManager _stocManager;
         private Auto? _masinaSelectata = null;
 
-        // Pentru culori in formularul inline
-        private Culoare? _culoareAddSelectata = null;
-        private readonly Dictionary<Culoare, Border> _btnAddCulori = new();
+        // Dictionar culori -> brush vizual
+        private readonly Dictionary<Culoare, Color> _culoriBrush = new()
+        {
+            { Culoare.Alb,      Color.FromRgb(0xF0, 0xF0, 0xF0) },
+            { Culoare.Negru,    Color.FromRgb(0x22, 0x22, 0x22) },
+            { Culoare.Rosu,     Color.FromRgb(0xE7, 0x4C, 0x3C) },
+            { Culoare.Albastru, Color.FromRgb(0x29, 0x80, 0xB9) },
+            { Culoare.Gri,      Color.FromRgb(0x95, 0xA5, 0xA6) },
+            { Culoare.Argintiu, Color.FromRgb(0xBD, 0xC3, 0xC7) }
+        };
+
+        // Checkbox-uri optiuni pentru formularele de adaugare si editare
         private readonly Dictionary<Optiuni, CheckBox> _chkAddOptiuni = new();
+        private readonly Dictionary<Optiuni, CheckBox> _chkEditOptiuni = new();
 
         public MainWindow()
         {
@@ -38,8 +48,11 @@ namespace WpfTargAuto
                 IStocareDate stocare = new StocareTextService("date");
                 _stocManager = new StocManager(stocare);
 
-                IncarcaFormularCulori();
-                IncarcaFormularOptiuni();
+                IncarcaComboBoxCulori(cmbAddCuloare);
+                IncarcaComboBoxCulori(cmbEditCuloare);
+                IncarcaOptiuni(pnlAddOptiuni, _chkAddOptiuni);
+                IncarcaOptiuni(pnlEditOptiuni, _chkEditOptiuni);
+
                 AfiseazaLista();
             }
             catch (Exception ex)
@@ -54,59 +67,62 @@ namespace WpfTargAuto
 
         private void BtnMeniu_Checked(object sender, RoutedEventArgs e)
         {
-            // Verificam ca paginile exista deja
-            if (paginaLista == null || paginaCautare == null || paginaAdauga == null)
-                return;
+            if (paginaLista == null) return;
 
             paginaLista.Visibility = Visibility.Collapsed;
             paginaCautare.Visibility = Visibility.Collapsed;
             paginaAdauga.Visibility = Visibility.Collapsed;
+            paginaEditeaza.Visibility = Visibility.Collapsed;
 
-            if (sender == btnMeniuLista)
-                paginaLista.Visibility = Visibility.Visible;
-            else if (sender == btnMeniuCautare)
-                paginaCautare.Visibility = Visibility.Visible;
-            else if (sender == btnMeniuAdauga)
-                paginaAdauga.Visibility = Visibility.Visible;
+            if (sender == btnMeniuLista) paginaLista.Visibility = Visibility.Visible;
+            else if (sender == btnMeniuCautare) paginaCautare.Visibility = Visibility.Visible;
+            else if (sender == btnMeniuAdauga) paginaAdauga.Visibility = Visibility.Visible;
+            else if (sender == btnMeniuEditeaza)
+            {
+                paginaEditeaza.Visibility = Visibility.Visible;
+
+                // Populam lista cu toate masinile la intrarea pe pagina
+                Auto[] toate = _stocManager.GetToate();
+                var listaText = new List<string>();
+                foreach (Auto m in toate)
+                    listaText.Add($"{m.Firma} {m.Model} ({m.AnFabricatie})");
+
+                lstEditMasini.ItemsSource = null;
+                lstEditMasini.ItemsSource = listaText;
+                lstEditMasini.Tag = toate;
+
+                pnlEditFormular.Visibility = Visibility.Collapsed;
+                txtEditPlaceholder.Visibility = Visibility.Visible;
+            }
         }
 
         // ════════════════════════════════════════════════════════════
-        // LISTA MASINI
+        // LISTA MASINI — folosim ListBox
         // ════════════════════════════════════════════════════════════
 
         private void AfiseazaLista()
         {
-            pnlLista.Children.Clear();
-            Auto[] masini = _stocManager.GetToate();
+            lstMasini.ItemsSource = null;
 
+            Auto[] masini = _stocManager.GetToate();
+            var listaText = new List<string>();
             foreach (Auto m in masini)
-            {
-                var btn = new Button
-                {
-                    Content = $"{m.Firma} {m.Model} ({m.AnFabricatie})",
-                    Tag = m,
-                    Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x2E)),
-                    Foreground = new SolidColorBrush(Color.FromRgb(0xEA, 0xEA, 0xEA)),
-                    BorderThickness = new Thickness(0),
-                    Padding = new Thickness(10, 8, 10, 8),
-                    Margin = new Thickness(0, 0, 0, 4),
-                    FontFamily = new FontFamily("Consolas"),
-                    FontSize = 12,
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    Cursor = System.Windows.Input.Cursors.Hand
-                };
-                btn.Click += BtnMasina_Click;
-                pnlLista.Children.Add(btn);
-            }
+                listaText.Add($"{m.Firma} {m.Model} ({m.AnFabricatie})");
+
+            lstMasini.ItemsSource = listaText;
 
             txtSubtitluLista.Text = $"{masini.Length} vehicule inregistrate";
             txtStatus.Text = $"{masini.Length} masini";
         }
 
-        private void BtnMasina_Click(object sender, RoutedEventArgs e)
+        private void lstMasini_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is Auto masina)
-                AfiseazaDetalii(masina);
+            int index = lstMasini.SelectedIndex;
+            if (index < 0) return;
+
+            Auto[] masini = _stocManager.GetToate();
+            if (index < masini.Length)
+                AfiseazaDetalii(masini[index]);
         }
 
         private void AfiseazaDetalii(Auto m)
@@ -118,6 +134,9 @@ namespace WpfTargAuto
             txtModel.Text = m.Model;
             txtAn.Text = m.AnFabricatie.ToString();
             txtVin.Text = m.SerieSasiu;
+            txtData.Text = m.DataAdaugarii != DateTime.MinValue
+                                   ? m.DataAdaugarii.ToShortDateString()
+                                   : "Nedefinita";
 
             txtCuloare.Text = m.Culoare.ToString();
             rectCuloare.Background = GetCuloareBrush(m.Culoare);
@@ -131,7 +150,7 @@ namespace WpfTargAuto
         }
 
         // ════════════════════════════════════════════════════════════
-        // CAUTARE
+        // CAUTARE — rezultate in ListBox
         // ════════════════════════════════════════════════════════════
 
         private void btnCauta_Click(object sender, RoutedEventArgs e)
@@ -146,125 +165,48 @@ namespace WpfTargAuto
             Auto[] toate = _stocManager.GetToate();
             Auto[] rezultate;
 
-            // Cautam dupa criteriul selectat cu RadioButton
             if (rbFirma.IsChecked == true)
-            {
                 rezultate = Array.FindAll(toate,
                     m => m.Firma.Contains(termen, StringComparison.OrdinalIgnoreCase));
-            }
             else if (rbAn.IsChecked == true)
-            {
                 rezultate = Array.FindAll(toate,
                     m => m.AnFabricatie.ToString().Contains(termen));
-            }
             else
-            {
                 rezultate = Array.FindAll(toate,
                     m => m.SerieSasiu.Contains(termen, StringComparison.OrdinalIgnoreCase));
-            }
 
-            // Afisam rezultatele
-            pnlRezultate.Children.Clear();
-
-            if (rezultate.Length == 0)
-            {
-                txtRezCautare.Text = "Niciun rezultat gasit.";
-                return;
-            }
-
-            txtRezCautare.Text = $"{rezultate.Length} rezultat(e) gasite:";
-
+            // Afisam in ListBox
+            var listaRez = new List<string>();
             foreach (Auto m in rezultate)
-            {
-                var card = new Border
-                {
-                    Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x2E)),
-                    CornerRadius = new CornerRadius(6),
-                    Padding = new Thickness(12, 8, 12, 8),
-                    Margin = new Thickness(0, 0, 0, 6)
-                };
+                listaRez.Add($"{m.Firma} {m.Model} ({m.AnFabricatie}) - {m.Culoare}");
 
-                var sp = new StackPanel();
-                sp.Children.Add(new TextBlock
-                {
-                    Text = $"{m.Firma} {m.Model} ({m.AnFabricatie})",
-                    FontFamily = new FontFamily("Consolas"),
-                    FontSize = 13,
-                    FontWeight = FontWeights.Bold,
-                    Foreground = new SolidColorBrush(Color.FromRgb(0xEA, 0xEA, 0xEA))
-                });
-                sp.Children.Add(new TextBlock
-                {
-                    Text = $"VIN: {m.SerieSasiu}  |  {m.Culoare}",
-                    FontFamily = new FontFamily("Consolas"),
-                    FontSize = 11,
-                    Foreground = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x99)),
-                    Margin = new Thickness(0, 3, 0, 0)
-                });
+            lstRezultate.ItemsSource = null;
+            lstRezultate.ItemsSource = listaRez;
 
-                card.Child = sp;
-                pnlRezultate.Children.Add(card);
-            }
+            txtRezCautare.Text = rezultate.Length == 0
+                ? "Niciun rezultat gasit."
+                : $"{rezultate.Length} rezultat(e) gasite:";
         }
 
         // ════════════════════════════════════════════════════════════
-        // FORMULAR ADAUGA INLINE
+        // ADAUGA MASINA
         // ════════════════════════════════════════════════════════════
 
-        private void IncarcaFormularCulori()
+        private void IncarcaComboBoxCulori(ComboBox cmb)
         {
-            var culoriDisponibile = new Dictionary<Culoare, Color>
+            cmb.Items.Clear();
+            foreach (Culoare c in Enum.GetValues(typeof(Culoare)))
             {
-                { Culoare.Alb,      Color.FromRgb(0xF0, 0xF0, 0xF0) },
-                { Culoare.Negru,    Color.FromRgb(0x22, 0x22, 0x22) },
-                { Culoare.Rosu,     Color.FromRgb(0xE7, 0x4C, 0x3C) },
-                { Culoare.Albastru, Color.FromRgb(0x29, 0x80, 0xB9) },
-                { Culoare.Gri,      Color.FromRgb(0x95, 0xA5, 0xA6) },
-                { Culoare.Argintiu, Color.FromRgb(0xBD, 0xC3, 0xC7) }
-            };
-
-            foreach (var pereche in culoriDisponibile)
-            {
-                Culoare culoare = pereche.Key;
-                var patrat = new Border
-                {
-                    Width = 32,
-                    Height = 32,
-                    CornerRadius = new CornerRadius(6),
-                    Background = new SolidColorBrush(pereche.Value),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x66)),
-                    BorderThickness = new Thickness(2),
-                    Margin = new Thickness(0, 0, 8, 8),
-                    Cursor = System.Windows.Input.Cursors.Hand,
-                    ToolTip = culoare.ToString()
-                };
-
-                patrat.MouseLeftButtonDown += (s, e) => SelecteazaCuloareAdd(culoare);
-                _btnAddCulori[culoare] = patrat;
-                pnlAddCulori.Children.Add(patrat);
+                if (c == Culoare.Nedefinita) continue;
+                cmb.Items.Add(c.ToString());
             }
         }
 
-        private void SelecteazaCuloareAdd(Culoare culoare)
+        private void IncarcaOptiuni(WrapPanel panel, Dictionary<Optiuni, CheckBox> dictionar)
         {
-            foreach (var p in _btnAddCulori)
-            {
-                p.Value.BorderBrush = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x66));
-                p.Value.BorderThickness = new Thickness(2);
-            }
+            panel.Children.Clear();
+            dictionar.Clear();
 
-            _btnAddCulori[culoare].BorderBrush = new SolidColorBrush(Colors.White);
-            _btnAddCulori[culoare].BorderThickness = new Thickness(3);
-
-            _culoareAddSelectata = culoare;
-            rectAddPreview.Background = _btnAddCulori[culoare].Background;
-            txtAddCuloareSelectata.Text = culoare.ToString();
-            txtAddCuloareSelectata.Foreground = new SolidColorBrush(Color.FromRgb(0xEA, 0xEA, 0xEA));
-            errAddCuloare.Visibility = Visibility.Collapsed;
-        }
-
-        private void IncarcaFormularOptiuni()
-        {
             var optiuni = new Dictionary<Optiuni, string>
             {
                 { Optiuni.AerConditionat, "Aer Conditionat" },
@@ -278,7 +220,6 @@ namespace WpfTargAuto
             foreach (var pereche in optiuni)
             {
                 Optiuni opt = pereche.Key;
-
                 var chk = new CheckBox
                 {
                     Foreground = new SolidColorBrush(Color.FromRgb(0xEA, 0xEA, 0xEA)),
@@ -311,33 +252,46 @@ namespace WpfTargAuto
                 });
 
                 container.Child = sp;
-                container.MouseLeftButtonDown += (s, e) => chk.IsChecked = !chk.IsChecked;
+                container.MouseLeftButtonDown += (s, ev) => chk.IsChecked = !chk.IsChecked;
 
-                chk.Checked += (s, e) =>
+                chk.Checked += (s, ev) =>
                 {
                     container.BorderBrush = new SolidColorBrush(Color.FromRgb(0x2E, 0xCC, 0x71));
                     container.Background = new SolidColorBrush(Color.FromRgb(0x1A, 0x2A, 0x1A));
                 };
-                chk.Unchecked += (s, e) =>
+                chk.Unchecked += (s, ev) =>
                 {
                     container.BorderBrush = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x66));
                     container.Background = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x3E));
                 };
 
-                _chkAddOptiuni[opt] = chk;
-                pnlAddOptiuni.Children.Add(container);
+                dictionar[opt] = chk;
+                panel.Children.Add(container);
+            }
+        }
+
+        private void cmbAddCuloare_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbAddCuloare.SelectedItem is string culoareStr
+                && Enum.TryParse(culoareStr, out Culoare culoare)
+                && _culoriBrush.ContainsKey(culoare))
+            {
+                rectAddPreview.Background = new SolidColorBrush(_culoriBrush[culoare]);
+                txtAddCuloareSelectata.Text = culoareStr;
+                errAddCuloare.Visibility = Visibility.Collapsed;
             }
         }
 
         private void btnSalveazaInline_Click(object sender, RoutedEventArgs e)
         {
-            if (!ValideazaFormular())
-                return;
+            if (!ValideazaFormularAdd()) return;
 
             Optiuni optiuni = Optiuni.Niciuna;
             foreach (var p in _chkAddOptiuni)
                 if (p.Value.IsChecked == true)
                     optiuni |= p.Key;
+
+            Enum.TryParse(cmbAddCuloare.SelectedItem?.ToString(), out Culoare culoare);
 
             var masina = new Auto
             {
@@ -345,21 +299,18 @@ namespace WpfTargAuto
                 Model = txtAddModel.Text.Trim(),
                 AnFabricatie = int.Parse(txtAddAn.Text.Trim()),
                 SerieSasiu = txtAddVin.Text.Trim(),
-                Culoare = _culoareAddSelectata.Value,
-                Optiuni = optiuni
+                Culoare = culoare,
+                Optiuni = optiuni,
+                DataAdaugarii = dtpAddData.SelectedDate ?? DateTime.Today
             };
 
             bool ok = _stocManager.Adauga(masina);
-
             if (ok)
             {
-                ResetFormular();
+                ResetFormularAdd();
                 AfiseazaLista();
-
-                // Navigam automat la lista
                 btnMeniuLista.IsChecked = true;
                 AfiseazaDetalii(masina);
-
                 MessageBox.Show($"{masina.Firma} {masina.Model} a fost adaugata!",
                     "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -372,35 +323,141 @@ namespace WpfTargAuto
 
         private void btnAnuleazaInline_Click(object sender, RoutedEventArgs e)
         {
-            ResetFormular();
+            ResetFormularAdd();
             btnMeniuLista.IsChecked = true;
         }
 
-        private void ResetFormular()
+        private void ResetFormularAdd()
         {
             txtAddFirma.Text = "";
             txtAddModel.Text = "";
             txtAddAn.Text = "";
             txtAddVin.Text = "";
-
-            _culoareAddSelectata = null;
+            cmbAddCuloare.SelectedIndex = -1;
             rectAddPreview.Background = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x3E));
             txtAddCuloareSelectata.Text = "Niciuna";
+            dtpAddData.SelectedDate = null;
 
-            foreach (var p in _btnAddCulori)
-            {
-                p.Value.BorderBrush = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x66));
-                p.Value.BorderThickness = new Thickness(2);
-            }
-
-            foreach (var p in _chkAddOptiuni)
-                p.Value.IsChecked = false;
+            foreach (var p in _chkAddOptiuni) p.Value.IsChecked = false;
 
             errAddFirma.Visibility = Visibility.Collapsed;
             errAddModel.Visibility = Visibility.Collapsed;
             errAddAn.Visibility = Visibility.Collapsed;
             errAddVin.Visibility = Visibility.Collapsed;
             errAddCuloare.Visibility = Visibility.Collapsed;
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // EDITARE MASINA
+        // ════════════════════════════════════════════════════════════
+
+        // Se apeleaza cand se scrie in casuta de cautare din pagina editare
+        private void txtEditCautare_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string termen = txtEditCautare.Text.Trim();
+            Auto[] toate = _stocManager.GetToate();
+
+            Auto[] filtrate = string.IsNullOrEmpty(termen)
+                ? toate
+                : Array.FindAll(toate,
+                    m => m.Firma.Contains(termen, StringComparison.OrdinalIgnoreCase)
+                      || m.Model.Contains(termen, StringComparison.OrdinalIgnoreCase));
+
+            var listaText = new List<string>();
+            foreach (Auto m in filtrate)
+                listaText.Add($"{m.Firma} {m.Model} ({m.AnFabricatie})");
+
+            lstEditMasini.ItemsSource = null;
+            lstEditMasini.ItemsSource = listaText;
+
+            // Salvam masinile filtrate ca tag ca sa le recuperam la selectie
+            lstEditMasini.Tag = filtrate;
+
+            // Ascundem formularul cand se schimba cautarea
+            pnlEditFormular.Visibility = Visibility.Collapsed;
+            txtEditPlaceholder.Visibility = Visibility.Visible;
+        }
+
+        // Se apeleaza cand se selecteaza o masina din lista de editare
+        private void lstEditMasini_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int index = lstEditMasini.SelectedIndex;
+            if (index < 0) return;
+
+            // Recuperam masina din tag
+            Auto[]? filtrate = lstEditMasini.Tag as Auto[];
+            if (filtrate == null || index >= filtrate.Length) return;
+
+            Auto m = filtrate[index];
+            _masinaSelectata = m;
+
+            // Populam formularul
+            txtEditTitlu.Text = $"Editezi: {m.Firma} {m.Model}";
+            txtEditFirma.Text = m.Firma;
+            txtEditModel.Text = m.Model;
+            txtEditAn.Text = m.AnFabricatie.ToString();
+            txtEditVin.Text = m.SerieSasiu;
+            dtpEditData.SelectedDate = m.DataAdaugarii != DateTime.MinValue
+                                       ? m.DataAdaugarii : DateTime.Today;
+
+            cmbEditCuloare.SelectedItem = m.Culoare.ToString();
+
+            foreach (var p in _chkEditOptiuni)
+                p.Value.IsChecked = m.Optiuni.HasFlag(p.Key);
+
+            txtEditPlaceholder.Visibility = Visibility.Collapsed;
+            pnlEditFormular.Visibility = Visibility.Visible;
+        }
+        private void cmbEditCuloare_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbEditCuloare.SelectedItem is string culoareStr
+                && Enum.TryParse(culoareStr, out Culoare culoare)
+                && _culoriBrush.ContainsKey(culoare))
+            {
+                rectEditPreview.Background = new SolidColorBrush(_culoriBrush[culoare]);
+                txtEditCuloareSelectata.Text = culoareStr;
+            }
+        }
+
+        private void btnSalveazaEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (_masinaSelectata == null) return;
+            if (!ValideazaFormularEdit()) return;
+
+            // Scoatem masina veche din stoc
+            _stocManager.Scoate(_masinaSelectata.SerieSasiu);
+
+            // Construim masina modificata
+            Optiuni optiuni = Optiuni.Niciuna;
+            foreach (var p in _chkEditOptiuni)
+                if (p.Value.IsChecked == true)
+                    optiuni |= p.Key;
+
+            Enum.TryParse(cmbEditCuloare.SelectedItem?.ToString(), out Culoare culoare);
+
+            var masinaEditata = new Auto
+            {
+                Firma = txtEditFirma.Text.Trim(),
+                Model = txtEditModel.Text.Trim(),
+                AnFabricatie = int.Parse(txtEditAn.Text.Trim()),
+                SerieSasiu = _masinaSelectata.SerieSasiu, // VIN raman neschimbat
+                Culoare = culoare,
+                Optiuni = optiuni,
+                DataAdaugarii = dtpEditData.SelectedDate ?? DateTime.Today
+            };
+
+            _stocManager.Adauga(masinaEditata);
+            AfiseazaLista();
+            btnMeniuLista.IsChecked = true;
+            AfiseazaDetalii(masinaEditata);
+
+            MessageBox.Show("Masina a fost modificata cu succes!",
+                "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnAnuleazaEdit_Click(object sender, RoutedEventArgs e)
+        {
+            btnMeniuLista.IsChecked = true;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -420,70 +477,70 @@ namespace WpfTargAuto
                 $"Sigur vrei sa stergi {_masinaSelectata.Firma} {_masinaSelectata.Model}?",
                 "Confirmare stergere", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            if (confirmare != MessageBoxResult.Yes)
-                return;
+            if (confirmare != MessageBoxResult.Yes) return;
 
-            bool sters = _stocManager.Scoate(_masinaSelectata.SerieSasiu);
-
-            if (sters)
-            {
-                _masinaSelectata = null;
-                pnlDetalii.Visibility = Visibility.Collapsed;
-                txtPlaceholder.Visibility = Visibility.Visible;
-                AfiseazaLista();
-            }
+            _stocManager.Scoate(_masinaSelectata.SerieSasiu);
+            _masinaSelectata = null;
+            pnlDetalii.Visibility = Visibility.Collapsed;
+            txtPlaceholder.Visibility = Visibility.Visible;
+            AfiseazaLista();
         }
 
         // ════════════════════════════════════════════════════════════
-        // VALIDARE FORMULAR INLINE
+        // VALIDARE
         // ════════════════════════════════════════════════════════════
 
-        private bool ValideazaFormular()
+        private bool ValideazaFormularAdd()
         {
             bool valid = true;
-            var rosu = new SolidColorBrush(Colors.Red);
-            var normal = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x99));
 
             string firma = txtAddFirma.Text.Trim();
-            if (firma.Length < FIRMA_MIN || firma.Length > FIRMA_MAX)
-            {
-                errAddFirma.Visibility = Visibility.Visible;
-                valid = false;
-            }
-            else errAddFirma.Visibility = Visibility.Collapsed;
+            errAddFirma.Visibility = firma.Length < FIRMA_MIN || firma.Length > FIRMA_MAX
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (errAddFirma.Visibility == Visibility.Visible) valid = false;
 
             string model = txtAddModel.Text.Trim();
-            if (model.Length < MODEL_MIN || model.Length > MODEL_MAX)
-            {
-                errAddModel.Visibility = Visibility.Visible;
-                valid = false;
-            }
-            else errAddModel.Visibility = Visibility.Collapsed;
+            errAddModel.Visibility = model.Length < MODEL_MIN || model.Length > MODEL_MAX
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (errAddModel.Visibility == Visibility.Visible) valid = false;
 
             bool anOk = int.TryParse(txtAddAn.Text.Trim(), out int an)
                         && an >= AN_MIN && an <= AN_MAX;
-            if (!anOk)
-            {
-                errAddAn.Text = $"Anul trebuie sa fie intre {AN_MIN} si {AN_MAX}!";
-                errAddAn.Visibility = Visibility.Visible;
-                valid = false;
-            }
-            else errAddAn.Visibility = Visibility.Collapsed;
+            errAddAn.Text = $"Anul trebuie sa fie intre {AN_MIN} si {AN_MAX}!";
+            errAddAn.Visibility = anOk ? Visibility.Collapsed : Visibility.Visible;
+            if (!anOk) valid = false;
 
             string vin = txtAddVin.Text.Trim();
-            if (vin.Length < VIN_MIN || vin.Length > VIN_MAX)
-            {
-                errAddVin.Visibility = Visibility.Visible;
-                valid = false;
-            }
-            else errAddVin.Visibility = Visibility.Collapsed;
+            errAddVin.Visibility = vin.Length < VIN_MIN || vin.Length > VIN_MAX
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (errAddVin.Visibility == Visibility.Visible) valid = false;
 
-            if (_culoareAddSelectata == null)
-            {
-                errAddCuloare.Visibility = Visibility.Visible;
-                valid = false;
-            }
-            else errAddCuloare.Visibility = Visibility.Collapsed;
+            errAddCuloare.Visibility = cmbAddCuloare.SelectedItem == null
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (errAddCuloare.Visibility == Visibility.Visible) valid = false;
+
+            return valid;
+        }
+
+        private bool ValideazaFormularEdit()
+        {
+            bool valid = true;
+
+            string firma = txtEditFirma.Text.Trim();
+            errEditFirma.Visibility = firma.Length < FIRMA_MIN || firma.Length > FIRMA_MAX
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (errEditFirma.Visibility == Visibility.Visible) valid = false;
+
+            string model = txtEditModel.Text.Trim();
+            errEditModel.Visibility = model.Length < MODEL_MIN || model.Length > MODEL_MAX
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (errEditModel.Visibility == Visibility.Visible) valid = false;
+
+            bool anOk = int.TryParse(txtEditAn.Text.Trim(), out int an)
+                        && an >= AN_MIN && an <= AN_MAX;
+            errEditAn.Text = $"Anul trebuie sa fie intre {AN_MIN} si {AN_MAX}!";
+            errEditAn.Visibility = anOk ? Visibility.Collapsed : Visibility.Visible;
+            if (!anOk) valid = false;
 
             return valid;
         }
@@ -499,16 +556,9 @@ namespace WpfTargAuto
 
         private SolidColorBrush GetCuloareBrush(Culoare culoare)
         {
-            switch (culoare)
-            {
-                case Culoare.Alb: return new SolidColorBrush(Colors.WhiteSmoke);
-                case Culoare.Negru: return new SolidColorBrush(Colors.DimGray);
-                case Culoare.Rosu: return new SolidColorBrush(Colors.Crimson);
-                case Culoare.Albastru: return new SolidColorBrush(Colors.SteelBlue);
-                case Culoare.Gri: return new SolidColorBrush(Colors.Gray);
-                case Culoare.Argintiu: return new SolidColorBrush(Colors.Silver);
-                default: return new SolidColorBrush(Colors.DarkGray);
-            }
+            return _culoriBrush.ContainsKey(culoare)
+                ? new SolidColorBrush(_culoriBrush[culoare])
+                : new SolidColorBrush(Colors.DarkGray);
         }
     }
 }
