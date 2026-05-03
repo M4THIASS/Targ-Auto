@@ -285,12 +285,11 @@
                                 Style="{StaticResource StilBtnSecundar}"
                                 VerticalAlignment="Center"
                                 Click="btnSterge_Click" Margin="8,0,0,0"/>
-                        
+
                         <Button DockPanel.Dock="Right"
                                 Content="+ Adauga"
                                 Style="{StaticResource StilBtn}"
-                                VerticalAlignment="Center"
-                                Click="btnAdauga_Click"/>
+                                Click="btnAdauga_Click" Width="212"/>
                     </DockPanel>
                 </Border>
 
